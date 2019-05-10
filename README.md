@@ -7,12 +7,12 @@
 ## Getting started
 Install `balance`:
 ```shell
-    go get github.com/enescakir/balance
+$ go get github.com/enescakir/balance
 ```
 
 Add `balance` to your imports to start using
 ```go
-    import "github.com/enescakir/balance"
+import "github.com/enescakir/balance"
 ```
 
 
@@ -54,7 +54,26 @@ valid, err := balance.CheckCustom("<><><>", "<<", ">")
 ```
 
 ## HTTP Server
+It's a simple HTTP server that shows example usage for `balance` package.
 
+It checks parenthesis balance of given and save request history to MySQL database for calculating some metrics.
+
+#### Endpoints
+- **GET** /dashboard
+
+Shows request history and some metrics
+     
+- **POST** /isbalanced
+    
+
+**Request:**
+```json
+// Example request body:
+{
+    "expr": "{[()]}"
+}
+```
+    
 ## Contributing
 
 `balance` is an open source project run by `Enes Çakır`, and contributions are welcome! Check out the [Issues](https://github.com/enescakir/balance/issues) page to see if your idea for a contribution has already been mentioned, and feel free to raise an issue or submit a pull request.
