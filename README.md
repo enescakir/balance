@@ -1,6 +1,8 @@
-![balance](https://github.com/EnesCakir/balance/blob/master/logo.png)
+<p align="center">
+	<img width="560" height="100" src="https://github.com/EnesCakir/balance/blob/master/logo.png">
+	<br> <br>
     A package for validating the balance of parentheses
-
+</p>
 
 ### Getting started
 Install `balance`:
@@ -16,14 +18,10 @@ Add `balance` to your imports to start using
 
 ### Usage
 
+#### `Check(str string) (valid bool, err error)`
+It checks given string for parentheses balance for `{}`, `()`, `[]` pairs
+
 ```go
-
-package main
-
-import "github.com/enescakir/balance"
-
-func main() {
-	// Check given string for parentheses balance
 	valid, err := balance.Check("{()[]}(())")
 	// Returns: valid => true, err => nil
 
@@ -35,8 +33,24 @@ func main() {
 
 	valid, err := balance.Check("({a})")
 	// Returns: valid => false, err => UnknownCharacterError
-}
+```
 
+#### `CheckCustom(str string, opens string, closes string) (bool, err)`
+It checks given string for parentheses balance for custom pairs.
+
+`opens` and `closes` strings should have pair elements in same order.
+
+Given pair elements have to be unique. `CheckCustom` function doesn't work properly without unique elements.
+
+```go
+	valid, err := balance.CheckCustom("<<>><>", "<", ">")
+	// Returns: valid => true, err => nil
+
+	valid, err := balance.CheckCustom(")))()(((", ")", "(")
+	// Returns: valid => true, err => nil
+
+	valid, err := balance.CheckCustom("<><><>", "<<", ">")
+	// Returns: valid => false, err => CustomPairError
 ```
 
 ### HTTP Server

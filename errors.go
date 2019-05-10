@@ -26,3 +26,12 @@ type UnclosedParenthesesError struct {
 func (e *UnclosedParenthesesError) Error() string {
 	return fmt.Sprintf("Unclosed %d parentheses", e.count)
 }
+
+type CustomPairError struct {
+	opens  string
+	closes string
+}
+
+func (e *CustomPairError) Error() string {
+	return fmt.Sprintf("Custom pair strings should have same length. Opens: %q Closes: %q", e.opens, e.closes)
+}

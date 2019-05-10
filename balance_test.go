@@ -74,3 +74,24 @@ func TestUnknownCharacterError(t *testing.T) {
 		}
 	}
 }
+
+func TestCheckCustom(t *testing.T) {
+
+	cases := []struct{
+		str, opens, closes string
+		valid bool
+	}{
+		{"<>", "<", ">", true},
+		{"{{}}\\/", "\\{", "/}", true},
+		{")))()(((", ")", "(", true},
+		{"<<>><<<>>", "<", ">)", false},
+	}
+
+	for _, c := range cases {
+		valid, err := CheckCustom(c.str, c.opens, c.closes)
+
+		if valid != c.valid {
+			t.Errorf("Text: %q, Valid: %v,  Expected: %v,  Error: %v", c.str, valid, c.valid, err)
+		}
+	}
+}

@@ -9,14 +9,22 @@ const (
 	CLOSE_PARENTHESES = "])}"
 )
 
-func Check(text string) (valid bool, err error) {
+func Check(str string) (valid bool, err error) {
+	return CheckCustom(str, OPEN_PARENTHESES, CLOSE_PARENTHESES)
+}
+
+func CheckCustom(str string, opens string, closes string) (valid bool, err error) {
+
+	if len(opens) != len(closes) {
+		return false, &CustomPairError{opens, closes}
+	}
 
 	stack := newStack()
 
-	for i, ch := range text {
-		if pos := strings.IndexRune(OPEN_PARENTHESES, ch); pos != -1 {
-			stack.push(rune(CLOSE_PARENTHESES[pos]))
-		} else if pos := strings.IndexRune(CLOSE_PARENTHESES, ch); pos != -1 {
+	for i, ch := range str {
+		if pos := strings.IndexRune(opens, ch); pos != -1 {
+			stack.push(rune(closes[pos]))
+		} else if pos := strings.IndexRune(closes, ch); pos != -1 {
 			if ch2 := stack.pop(); ch != ch2 {
 				return false, &MismatchError{i}
 			}
