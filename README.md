@@ -4,7 +4,7 @@
     A package for validating the balance of parentheses
 </p>
 
-### Getting started
+## Getting started
 Install `balance`:
 ```shell
     go get github.com/enescakir/balance
@@ -16,23 +16,23 @@ Add `balance` to your imports to start using
 ```
 
 
-### Usage
+## Usage
 
 #### `Check(str string) (valid bool, err error)`
 It checks given string for parentheses balance for `{}`, `()`, `[]` pairs
 
 ```go
-	valid, err := balance.Check("{()[]}(())")
-	// Returns: valid => true, err => nil
+valid, err := balance.Check("{()[]}(())")
+// Returns: valid => true, err => nil
 
-	valid, err := balance.Check("([)]")
-	// Returns: valid => false, err => MismatchError
+valid, err := balance.Check("([)]")
+// Returns: valid => false, err => MismatchError
 
-	valid, err := balance.Check("[[]")
-	// Returns: valid => false, err => UnclosedParenthesesError
+valid, err := balance.Check("[[]")
+// Returns: valid => false, err => UnclosedParenthesesError
 
-	valid, err := balance.Check("({a})")
-	// Returns: valid => false, err => UnknownCharacterError
+valid, err := balance.Check("({a})")
+// Returns: valid => false, err => UnknownCharacterError
 ```
 
 #### `CheckCustom(str string, opens string, closes string) (bool, err)`
@@ -43,22 +43,22 @@ It checks given string for parentheses balance for custom pairs.
 Given pair elements have to be unique. `CheckCustom` function doesn't work properly without unique elements.
 
 ```go
-	valid, err := balance.CheckCustom("<<>><>", "<", ">")
-	// Returns: valid => true, err => nil
+valid, err := balance.CheckCustom("<<>><>", "<", ">")
+// Returns: valid => true, err => nil
 
-	valid, err := balance.CheckCustom(")))()(((", ")", "(")
-	// Returns: valid => true, err => nil
+valid, err := balance.CheckCustom(")))()(((", ")", "(")
+// Returns: valid => true, err => nil
 
-	valid, err := balance.CheckCustom("<><><>", "<<", ">")
-	// Returns: valid => false, err => CustomPairError
+valid, err := balance.CheckCustom("<><><>", "<<", ">")
+// Returns: valid => false, err => CustomPairError
 ```
 
-### HTTP Server
+## HTTP Server
 
-### Contributing
+## Contributing
 
 `balance` is an open source project run by `Enes Çakır`, and contributions are welcome! Check out the [Issues](https://github.com/enescakir/balance/issues) page to see if your idea for a contribution has already been mentioned, and feel free to raise an issue or submit a pull request.
 
-### License
+## License
 Copyright (c) 2019 Enes Çakır. All rights reserved. Use of this source code is
 governed by a MIT license that can be found in the LICENSE file.
