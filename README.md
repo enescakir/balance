@@ -1,5 +1,6 @@
-# balance ([{}])
+![balance](https://github.com/EnesCakir/balance/blob/master/logo.png)
     A package for validating the balance of parentheses
+
 
 ### Getting started
 Install `balance`:
