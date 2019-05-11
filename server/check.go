@@ -3,46 +3,48 @@ package main
 import (
 	"encoding/json"
 	"github.com/enescakir/balance"
-	"log"
 	"net/http"
 )
 
-type checkRequest struct {
-	Query string `json:"expr"`
-}
-
-type checkResponse struct {
-	Valid bool   `json:"valid"`
-	Error string `json:"error,omitempty"`
-}
-
-func checkHandler(w http.ResponseWriter, req *http.Request) {
-	if req.Method != "POST" {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
+func (s *server) handleCheck() http.HandlerFunc {
+	type request struct {
+		Query string `json:"expr"`
 	}
 
-	decoder := json.NewDecoder(req.Body)
-	var cReq checkRequest
-	err := decoder.Decode(&cReq)
-	if err != nil {
-		panic(err)
+	type response struct {
+		Valid bool   `json:"valid"`
+		Error string `json:"error,omitempty"`
 	}
 
-	log.Printf("/isbalanced - %q", cReq.Query)
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "POST" {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
 
-	valid, err := balance.Check(cReq.Query)
+		// Parse JSON request to struct
+		decoder := json.NewDecoder(r.Body)
+		var cReq request
+		err := decoder.Decode(&cReq)
+		if err != nil {
+			panic(err)
+		}
 
-	var cRes checkResponse
-	cRes.Valid = valid
-	if err != nil {
-		cRes.Error = err.Error()
-	}
+		// Validate given string
+		valid, err := balance.Check(cReq.Query)
 
-	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(cRes)
+		// Convert result to JSON and return it
+		var cRes response
+		cRes.Valid = valid
+		if err != nil {
+			cRes.Error = err.Error()
+		}
 
-	if err != nil {
-		panic(err)
+		w.Header().Set("Content-Type", "application/json")
+		err = json.NewEncoder(w).Encode(cRes)
+
+		if err != nil {
+			panic(err)
+		}
 	}
 }
