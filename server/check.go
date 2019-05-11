@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func (s *server) handleCheck() http.HandlerFunc {
+func (s *Server) handleCheck() http.HandlerFunc {
 	type request struct {
 		Query string `json:"expr"`
 	}
