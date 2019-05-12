@@ -26,13 +26,9 @@ func (s *Server) log(h http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		defer querylog.NewQueryLog(*req.Query, lw.Status, time.Since(start).Nanoseconds()).Save(s.db)
+		s.repo.Store(querylog.NewQueryLog(*req.Query, lw.Status, time.Since(start).Nanoseconds()))
 
-		defer log.Printf(
-			"%s\t%s\t%s",
-			r.Method,
-			r.RequestURI,
-			time.Since(start),
+		defer log.Printf("%s\t%s\t%s", r.Method, r.RequestURI, time.Since(start),
 		)
 	}
 }

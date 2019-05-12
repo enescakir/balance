@@ -14,8 +14,5 @@ func (s *Server) handleDashboard() http.HandlerFunc {
 
 		fp := filepath.Join("templates", "dashboard.html")
 		http.ServeFile(w, r, fp)
-
-		//tmpl, _ := template.ParseFiles(fp)
-		//tmpl.ExecuteTemplate(w, "dashboard", nil)
 	}
 }

@@ -1,3 +1,4 @@
+// Command run parenthesis balance server.
 package main
 
 import server "github.com/enescakir/balance/server/base"

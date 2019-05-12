@@ -3,13 +3,13 @@ package server
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"github.com/enescakir/balance"
 	"io/ioutil"
 	"log"
 	"net/http"
 )
 
+// handleCheck handles parenthesis balance validating endpoint
 func (s *Server) handleCheck() http.HandlerFunc {
 	type request struct {
 		Query *string `json:"expr"`
@@ -33,7 +33,7 @@ func (s *Server) handleCheck() http.HandlerFunc {
 
 		if err != nil || cReq.Query == nil {
 			log.Printf("Check handle couldn't parse request")
-			fmt.Fprint(w, "`expr` is required")
+			http.Error(w, "`expr` is required", http.StatusBadRequest)
 			return
 		}
 
@@ -56,7 +56,9 @@ func (s *Server) handleCheck() http.HandlerFunc {
 		err = json.NewEncoder(w).Encode(cRes)
 
 		if err != nil {
-			panic(err)
+			log.Printf("Check handler can't convert response to JSON")
+			http.Error(w, "JSON convert error", http.StatusInternalServerError)
+			return
 		}
 	}
 }

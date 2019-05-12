@@ -14,6 +14,16 @@ type QueryLog struct {
 // QueryLogs is a collection of QueryLog.
 type QueryLogs []QueryLog
 
+type StatusCount struct {
+	Status Status `json:"status"`
+	Count  int    `json:"count"`
+}
+
+type HistogramBin struct {
+	Label string `json:"label"`
+	Count int    `json:"count"`
+}
+
 // Status represents result of the request in QueryLog.
 type Status int
 

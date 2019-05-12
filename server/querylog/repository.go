@@ -1,18 +1,8 @@
 package querylog
 
-import (
-	"database/sql"
-	"fmt"
-	"log"
-)
-
-func (l *QueryLog) Save(db *sql.DB) {
-	q := fmt.Sprintf("INSERT INTO logs (query, Status, response_time) VALUES (%q, %d, %d)", l.Query, l.Status, l.ResponseTime)
-	insert, err := db.Query(q)
-
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-
-	defer insert.Close()
+type Repository interface {
+	Store(l *QueryLog) error
+	FindAll(start string, end string) ([]*QueryLog, error)
+	GetCountByStatus(start string, end string) ([]*StatusCount, error)
+	GetHistogramBins(start string, end string) ([]*HistogramBin, error)
 }

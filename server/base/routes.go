@@ -1,5 +1,6 @@
 package server
 
+// routes adds handlers for endpoints
 func (s *Server) routes() {
 	s.router.HandleFunc("/", s.handleDashboard())
 	s.router.HandleFunc("/isbalanced", s.log(s.handleCheck()))
