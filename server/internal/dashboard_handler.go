@@ -1,10 +1,11 @@
-package main
+package internal
 
 import (
 	"net/http"
 	"path/filepath"
 )
 
+// handleDashboard serves dashboard HTML
 func (s *Server) handleDashboard() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "GET" {
@@ -14,8 +15,5 @@ func (s *Server) handleDashboard() http.HandlerFunc {
 
 		fp := filepath.Join("templates", "dashboard.html")
 		http.ServeFile(w, r, fp)
-
-		//tmpl, _ := template.ParseFiles(fp)
-		//tmpl.ExecuteTemplate(w, "dashboard", nil)
 	}
 }

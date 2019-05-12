@@ -1,9 +1,12 @@
+// Command run parenthesis balance server.
 package main
 
-func main() {
-	config := ReadConfig("config.json")
+import server "github.com/enescakir/balance/server/internal"
 
-	s := NewServer(config)
+func main() {
+	config := server.ReadConfig("config.json")
+
+	s := server.NewServer(config)
 
 	s.Start()
 }

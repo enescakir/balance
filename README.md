@@ -56,37 +56,16 @@ valid, err := balance.CheckCustom("<><><>", "<<", ">")
 ## HTTP Server
 It's a simple HTTP server that shows example usage for `balance` package.
 
-It checks parenthesis balance of given and save request history to MySQL database for calculating some metrics.
+It checks parenthesis balance of given string and save request history to MySQL database for calculating some metrics.
 
-### Usage
-- Copy `config.example.json` to `config.json`. `$ cp config.example.json config.json`
-- Put database credentials into `config.json`
-- Run server `go run server/*.go`
-- Visit `http://localhost:8080/`
+Visit `server` directory for [detailed documentation](https://github.com/EnesCakir/balance/tree/master/server).
 
-### Endpoints     
-**POST** /isbalanced
-```json
-// Example request body:
-{
-    "expr": "{[()]}"
-}
-```
-```json
-// Response for "{[()]}":
-{
-    "valid": true
-}
+## Testing
+You can use `go test` method for unit tests.
 
-// Response for "[())]":
-{
-    "valid": false,
-    "error": "Mismatch at index: 3"
-}
-```
-    
+**Test coverage:** %100
+
 ## Contributing
-
 `balance` is an open source project run by `Enes Çakır`, and contributions are welcome! Check out the [Issues](https://github.com/enescakir/balance/issues) page to see if your idea for a contribution has already been mentioned, and feel free to raise an issue or submit a pull request.
 
 ## License

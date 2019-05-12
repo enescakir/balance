@@ -1,8 +1,10 @@
 {
   "Port": 8080,
-  "DatabaseHost": "127.0.0.1",
-  "DatabaseName": "balance",
-  "DatabaseUser": "root",
-  "DatabasePassword": "secret",
-  "DatabasePort": 3306
+  "Database": {
+    "Host": "127.0.0.1",
+    "Name": "balance",
+    "User": "root",
+    "Password": "secret",
+    "Port": 3306
+  }
 }
