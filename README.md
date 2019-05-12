@@ -59,10 +59,20 @@ It's a simple HTTP server that shows example usage for `balance` package.
 It checks parenthesis balance of given and save request history to MySQL database for calculating some metrics.
 
 ### Usage
-- Copy `config.example.json` to `config.json`. `$ cp config.example.json config.json`
-- Put database credentials into `config.json`
-- Run server `go run server/*.go`
-- Visit `http://localhost:8080/`
+```shell
+# Enter to server directory
+cd server
+
+# Copy config.example.json to config.json
+cp config.example.json config.json
+
+# Put database credentials into config.json
+
+# Run server 
+go run main.go
+
+# Visit `http://localhost:8080/`
+```
 
 ### Endpoints     
 **POST** /isbalanced

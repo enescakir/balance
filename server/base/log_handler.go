@@ -1,10 +1,11 @@
-package main
+package server
 
 import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	ql "github.com/enescakir/balance/server/querylog"
 )
 
 func (s *Server) handleLogIndex() http.HandlerFunc {
@@ -39,9 +40,9 @@ func (s *Server) handleLogIndex() http.HandlerFunc {
 			panic(err.Error()) // proper error handling instead of panic in your app
 		}
 
-		logs := QueryLogs{}
+		logs := ql.QueryLogs{}
 		for results.Next() {
-			var l QueryLog
+			var l ql.QueryLog
 			// for each row, scan the result into our tag composite object
 			err = results.Scan(&l.Id, &l.Query, &l.Status, &l.ResponseTime, &l.CreatedAt)
 			if err != nil {
@@ -61,7 +62,7 @@ func (s *Server) handleLogIndex() http.HandlerFunc {
 
 func (s *Server) handleLogStatusCounts() http.HandlerFunc {
 	type StatusCount struct {
-		Status LogStatus `json:"status"`
+		Status ql.Status `json:"status"`
 		Count  int       `json:"count"`
 	}
 

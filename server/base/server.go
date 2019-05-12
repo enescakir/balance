@@ -1,5 +1,5 @@
 // Command Server run parenthesis balance Server.
-package main
+package server
 
 import (
 	"database/sql"
