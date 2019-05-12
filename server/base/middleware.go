@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/json"
 	"github.com/enescakir/balance/server/querylog"
 	"log"
 	"net/http"
@@ -8,15 +9,24 @@ import (
 )
 
 func (s *Server) log(h http.HandlerFunc) http.HandlerFunc {
+	type request struct {
+		Query *string `json:"expr"`
+	}
+
 	return func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		lw := querylog.NewLoggerWriter(w)
 		h(lw, r)
-		var cReq checkRequest
 
-		cReq.fromJson(r.Body)
+		var req request
+		decoder := json.NewDecoder(r.Body)
+		err := decoder.Decode(&req)
 
-		defer querylog.NewQueryLog(cReq.Query, lw.Status, time.Since(start).Nanoseconds()).Save(s.db)
+		if err != nil || req.Query == nil {
+			return
+		}
+
+		defer querylog.NewQueryLog(*req.Query, lw.Status, time.Since(start).Nanoseconds()).Save(s.db)
 
 		defer log.Printf(
 			"%s\t%s\t%s",

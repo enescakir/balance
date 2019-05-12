@@ -2,7 +2,6 @@ package querylog
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 )
 
@@ -35,15 +34,11 @@ func (w *LoggerWriter) Write(b []byte) (int, error) {
 	}
 
 	var r response
-	err := json.Unmarshal(b, &r)
+	_ = json.Unmarshal(b, &r)
 	if r.Valid {
-		w.Status = 1
+		w.Status = Balanced
 	} else {
-		w.Status = 2
-	}
-
-	if err != nil {
-		log.Fatal("LoggerWriter can't identify response")
+		w.Status = Unbalanced
 	}
 
 	return w.writer.Write(b)
