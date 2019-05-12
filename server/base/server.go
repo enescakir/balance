@@ -18,7 +18,7 @@ type Server struct {
 func NewServer(cfg Config) *Server {
 	mux := http.NewServeMux()
 
-	dbAddress := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true", cfg.DatabaseUser, cfg.DatabasePassword, cfg.DatabaseHost, cfg.DatabasePort, cfg.DatabaseName)
+	dbAddress := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true", cfg.Database.User, cfg.Database.Password, cfg.Database.Host, cfg.Database.Port, cfg.Database.Name)
 	db, err := sql.Open("mysql", dbAddress)
 
 	if err != nil {
