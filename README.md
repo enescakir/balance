@@ -56,7 +56,7 @@ valid, err := balance.CheckCustom("<><><>", "<<", ">")
 ## HTTP Server
 It's a simple HTTP server that shows example usage for `balance` package.
 
-It checks parenthesis balance of given and save request history to MySQL database for calculating some metrics.
+It checks parenthesis balance of given string and save request history to MySQL database for calculating some metrics.
 
 ### Usage
 ```shell
@@ -80,7 +80,7 @@ $ go run main.go
 #### Docker
 You can use balance server with Docker
 
-*Notice:* `Dockerfile` is at project root, not the server root. Because this repository isn't public right now. 
+**Notice:** `Dockerfile` is at project root, not the server root. Because this repository isn't public right now. 
 When we put it to the server root, it can't download `github.com/enescakir/balance` package.
 
 ```shell
@@ -106,7 +106,7 @@ $ docker run -it -p 8080:8080 \
 ```
 
 ### Endpoints     
-**POST** /isbalanced
+#### **POST** /isbalanced
 
 Checks the parentheses balance of given expression 
 ```json
@@ -128,11 +128,12 @@ Checks the parentheses balance of given expression
 }
 ```
 
-**GET** /logs
+#### **GET** /logs
 
 Returns the collection of logs at given date range.
 
-It accepts `start` and `end` as query parameter. They are optional. 
+It accepts `start` and `end` as query parameter. They are optional.
+
 *Example:* `/logs?start=2019-05-11+12:17:00`
 
 ```json
@@ -154,11 +155,12 @@ It accepts `start` and `end` as query parameter. They are optional.
 ]
 ```
 
-**GET** /logs/status
+#### **GET** /logs/status
 
 Returns the collection of status:count pairs at given date range.
 
-It accepts `start` and `end` as query parameter. They are optional. 
+It accepts `start` and `end` as query parameter. They are optional.
+
 *Example:* `/logs/status?start=2019-05-11+12:17:00`
 
 ```json
@@ -175,12 +177,13 @@ It accepts `start` and `end` as query parameter. They are optional.
 ]
 ```
 
-**GET** /logs/histogram
+#### **GET** /logs/histogram
 
 Returns the collection of label:responseTime bins at given date range.
 Labels are milliseconds.
 
-It accepts `start` and `end` as query parameter. They are optional. 
+It accepts `start` and `end` as query parameter. They are optional.
+
 *Example:* `/logs/histogram?start=2019-05-11+12:17:00`
 
 ```json
