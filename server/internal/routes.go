@@ -1,4 +1,4 @@
-package server
+package internal
 
 // routes adds handlers for endpoints
 func (s *Server) routes() {

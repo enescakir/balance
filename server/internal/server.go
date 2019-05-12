@@ -1,5 +1,5 @@
 // Package server start simple HTTP server for validating parentheses balance of strings
-package server
+package internal
 
 import (
 	"database/sql"
