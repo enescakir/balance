@@ -40,6 +40,9 @@ func ReadConfig(filename string) Config {
 		log.Println("Can't decode config JSON")
 		cfg.Database.Host = os.Getenv("DATABASE_HOST")
 		port := os.Getenv("DATABASE_PORT")
+		if port == "" {
+			port = "3306"
+		}
 		cfg.Database.Port, _ = strconv.Atoi(port)
 		cfg.Database.Name = os.Getenv("DATABASE_NAME")
 		cfg.Database.User = os.Getenv("DATABASE_USER")

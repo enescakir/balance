@@ -29,8 +29,10 @@ func NewServer(cfg Config) *Server {
 	}
 
 	repo := querylog.NewMysqlRepository(db)
+	s := &Server{repo: repo, router: mux, port: cfg.Port}
+	s.migrate(db)
 
-	return &Server{repo: repo, router: mux, port: cfg.Port}
+	return s
 }
 
 // Start initialize HTTP server on given port address
@@ -42,4 +44,23 @@ func (s *Server) Start() {
 	address := fmt.Sprintf(":%d", s.port)
 
 	log.Fatal(http.ListenAndServe(address, s.router))
+}
+
+func (s *Server) migrate(db *sql.DB) {
+	migration := `
+	CREATE TABLE IF NOT EXISTS logs (
+ 		id int(11) unsigned NOT NULL AUTO_INCREMENT,
+ 		query text COLLATE utf8mb4_general_ci,
+ 		status int(11) NOT NULL DEFAULT '0',
+ 		response_time bigint(11) NOT NULL,
+ 		created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  		PRIMARY KEY (id)
+	) ENGINE=InnoDB AUTO_INCREMENT=141 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;`
+
+	_, err := db.Exec(migration)
+
+	if err != nil {
+		log.Fatalf("Can't not create logs table: %s", err.Error())
+	}
+
 }
