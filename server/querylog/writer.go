@@ -2,28 +2,32 @@ package querylog
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 )
 
+// LoggerWriter intercepts server response and detects the status of response in the server middleware.
 type LoggerWriter struct {
 	writer http.ResponseWriter
 	Status Status
 }
 
+// NewLoggerWriter returns newly created LoggerWriter reference.
 func NewLoggerWriter(w http.ResponseWriter) *LoggerWriter {
-	var lw LoggerWriter
-	lw.writer = w
-	return &lw
+	return &LoggerWriter{w, Unknown}
 }
 
+// Header returns the header map of http.ResponseWriter
 func (w *LoggerWriter) Header() http.Header {
 	return w.writer.Header()
 }
 
+// WriteHeader writes status code to header via http.ResponseWriter.
 func (w *LoggerWriter) WriteHeader(statusCode int) {
 	w.writer.WriteHeader(statusCode)
 }
 
+// Write decodes returned response and detects the status of response, then continues normal lifecycle/
 func (w *LoggerWriter) Write(b []byte) (int, error) {
 	type response struct {
 		Valid bool   `json:"valid"`
@@ -37,8 +41,9 @@ func (w *LoggerWriter) Write(b []byte) (int, error) {
 	} else {
 		w.Status = 2
 	}
+
 	if err != nil {
-		panic(err)
+		log.Fatal("LoggerWriter can't identify response")
 	}
 
 	return w.writer.Write(b)
