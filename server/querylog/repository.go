@@ -1,5 +1,6 @@
 package querylog
 
+// Repository is interface for log data storage. It's used for dependency injection.
 type Repository interface {
 	Store(l *QueryLog) error
 	FindAll(start string, end string) ([]*QueryLog, error)

@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 )
 
+// handleDashboard serves dashboard HTML
 func (s *Server) handleDashboard() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "GET" {

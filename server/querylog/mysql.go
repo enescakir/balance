@@ -7,32 +7,37 @@ import (
 	"strings"
 )
 
+// MysqlRepository implements Repository interface for MySQL.
 type MysqlRepository struct {
 	db *sql.DB
 }
 
+// NewMysqlRepository returns newly created MysqlRepository reference with given database.
 func NewMysqlRepository(db *sql.DB) *MysqlRepository {
 	return &MysqlRepository{db: db}
 }
 
+// Store saves given QueryLog to MySQL database.
 func (r *MysqlRepository) Store(l *QueryLog) error {
 	insert, err := r.db.Query("INSERT INTO logs (query, Status, response_time) VALUES (?, ?, ?)", l.Query, l.Status, l.ResponseTime)
+	defer insert.Close()
 
 	if err != nil {
 		log.Printf("Can't insert log to DB: %s", err.Error())
 		return err
 	}
 
-	defer insert.Close()
 	return nil
 }
 
+// FindAll returns all logs for given data range from MySQL database.
 func (r *MysqlRepository) FindAll(start string, end string) ([]*QueryLog, error) {
 	where, args := buildDateRangeQuery(start, end)
 
 	query := fmt.Sprintf("SELECT * FROM logs %s ORDER BY created_at DESC", where)
 
 	results, err := r.db.Query(query, args...)
+	defer results.Close()
 
 	if err != nil {
 		log.Printf("Can't get logs from DB: %s", err.Error())
@@ -50,15 +55,18 @@ func (r *MysqlRepository) FindAll(start string, end string) ([]*QueryLog, error)
 		}
 		logs = append(logs, &l)
 	}
+
 	return logs, nil
 }
 
+// GetCountByStatus returns status:count pairs for given data range from MySQL database.
 func (r *MysqlRepository) GetCountByStatus(start string, end string) ([]*StatusCount, error) {
 	where, args := buildDateRangeQuery(start, end)
 
 	query := fmt.Sprintf("SELECT status, COUNT(*) as count FROM logs %s GROUP BY status", where)
 
 	results, err := r.db.Query(query, args...)
+	defer results.Close()
 
 	if err != nil {
 		log.Printf("Can't get log counts by status from DB: %s", err.Error())
@@ -80,6 +88,7 @@ func (r *MysqlRepository) GetCountByStatus(start string, end string) ([]*StatusC
 	return counts, nil
 }
 
+// GetHistogramBins returns responseTime:count bins for given data range from MySQL database.
 func (r *MysqlRepository) GetHistogramBins(start string, end string) ([]*HistogramBin, error) {
 	type Bucket struct {
 		Value int `json:"value"`
@@ -91,6 +100,7 @@ func (r *MysqlRepository) GetHistogramBins(start string, end string) ([]*Histogr
 	query := fmt.Sprintf("SELECT ROUND(response_time, -4) AS value, COUNT(*) AS count FROM logs %s GROUP BY value ORDER BY value", where)
 
 	results, err := r.db.Query(query, args...)
+	defer results.Close()
 
 	if err != nil {
 		log.Printf("Can't get log response time histogram from DB: %s", err.Error())
@@ -120,6 +130,7 @@ func (r *MysqlRepository) GetHistogramBins(start string, end string) ([]*Histogr
 	return bins, nil
 }
 
+// buildDateRangeQuery generates prepared SQL query for given start and end date.
 func buildDateRangeQuery(start string, end string) (string, []interface{}) {
 	var placeholders []string
 	var values []interface{}

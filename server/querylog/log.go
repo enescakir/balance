@@ -14,11 +14,13 @@ type QueryLog struct {
 // QueryLogs is a collection of QueryLog.
 type QueryLogs []QueryLog
 
+// StatusCount represents status:count pair.
 type StatusCount struct {
 	Status Status `json:"status"`
 	Count  int    `json:"count"`
 }
 
+// HistogramBin represents responseTime:count bins.
 type HistogramBin struct {
 	Label string `json:"label"`
 	Count int    `json:"count"`

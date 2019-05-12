@@ -46,6 +46,7 @@ func (s *Server) Start() {
 	log.Fatal(http.ListenAndServe(address, s.router))
 }
 
+// migrate creates data tables if not exists
 func (s *Server) migrate(db *sql.DB) {
 	migration := `
 	CREATE TABLE IF NOT EXISTS logs (

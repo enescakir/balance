@@ -6,6 +6,7 @@ import (
 	"net/http"
 )
 
+// handleLogIndex returns all logs as JSON for given date range
 func (s *Server) handleLogIndex() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "GET" {
@@ -29,6 +30,7 @@ func (s *Server) handleLogIndex() http.HandlerFunc {
 	}
 }
 
+// handleLogStatusCounts returns status:count pairs at given date range
 func (s *Server) handleLogStatusCounts() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "GET" {
@@ -52,6 +54,7 @@ func (s *Server) handleLogStatusCounts() http.HandlerFunc {
 	}
 }
 
+// handleLogResponseHistogram returns label:responseTime bins at given date range.
 func (s *Server) handleLogResponseHistogram() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "GET" {
@@ -59,7 +62,6 @@ func (s *Server) handleLogResponseHistogram() http.HandlerFunc {
 			return
 		}
 
-		// if only one expected
 		start := r.URL.Query().Get("start")
 		end := r.URL.Query().Get("end")
 

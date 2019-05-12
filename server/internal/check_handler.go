@@ -11,10 +11,12 @@ import (
 
 // handleCheck handles parenthesis balance validating endpoint
 func (s *Server) handleCheck() http.HandlerFunc {
+	// request represents check balance request.
 	type request struct {
 		Query *string `json:"expr"`
 	}
 
+	// response represents check balance response.
 	type response struct {
 		Valid bool   `json:"valid"`
 		Error string `json:"error,omitempty"`
