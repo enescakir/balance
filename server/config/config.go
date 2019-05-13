@@ -1,4 +1,4 @@
-package internal
+package config
 
 import (
 	"encoding/json"
@@ -22,8 +22,8 @@ type DatabaseConfig struct {
 	Port     int
 }
 
-// ReadConfig imports config values from file and environment
-func ReadConfig(filename string) Config {
+// Read imports config values from file and environment
+func Read(filename string) Config {
 	file, err := os.Open(filename)
 
 	var cfg Config
