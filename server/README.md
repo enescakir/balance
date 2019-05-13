@@ -1,16 +1,18 @@
 ## HTTP Server
 It's a simple HTTP server that shows example usage for `balance` package.
 
-It checks parenthesis balance of given string and save request history to MySQL database for calculating some metrics.
+It checks parenthesis balance of given string and save request history to memory or MySQL database for calculating some metrics.
+
+![Dashboard](https://github.com/EnesCakir/balance/blob/master/dashboard.png)
 
 ### Usage
 ```shell
 # Enter to server directory
 $ cd server
 
+# If you want to use in memory database, you don't have to copy config file. Default: in memory database
 # Copy config.example.json to config.json
-$ cp config.example.json config.json
-
+$ cp config/config.example.json config/config.json
 # Put database credentials into config.json
 
 # Download goland MySQL driver
@@ -21,6 +23,15 @@ $ go run main.go
 
 # Visit `http://localhost:8080/`
 ```
+
+#### Testing
+**Test coverage:** ~95%
+
+`querylog.MysqlRepository` and `database.db` tests require MySQL connection.
+
+Create `config/config.mysql.json` file, set driver to `mysql` then put your database credentials.
+
+You can use `go test ./...` command for testing.
 
 #### Docker
 You can use balance server with Docker

@@ -29,7 +29,6 @@ func TestServer(t *testing.T) {
 	if err != nil {
 		t.Error("Server couldn't stop")
 	}
-
 }
 
 func TestLogHandler(t *testing.T) {

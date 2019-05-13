@@ -15,20 +15,6 @@ func TestNew(t *testing.T) {
 	if err != nil {
 		t.Errorf("Can't connect database: %s", err.Error())
 	}
-
-	Migrate(db)
-
-	_, err = db.Query("SELECT 1 FROM logs LIMIT 1;")
-	if err != nil {
-		t.Errorf("Table isn't exist: %s", err.Error())
-	}
-
-	Rollback(db)
-
-	_, err = db.Query("SELECT 1 FROM logs LIMIT 1;")
-	if err == nil {
-		t.Errorf("Table not dropped")
-	}
 }
 
 func TestErrors(t *testing.T) {

@@ -108,6 +108,7 @@ func TestMysqlRepositoryConnectError(t *testing.T) {
 	repo := NewMysqlRepository(db)
 	// Drop tables. All queries will fail
 	repo.Flush()
+	defer repo.Flush()
 
 	// Test Store() Fail
 	for _, c := range cases {
@@ -140,6 +141,7 @@ func TestMysqlRepositoryConnectError(t *testing.T) {
 func TestMysqlRepositoryParseError(t *testing.T) {
 	db := connectTestDatabase()
 	repo := NewMysqlRepository(db)
+	defer repo.Flush()
 
 	// Test Store()
 	for _, c := range cases {
