@@ -4,7 +4,7 @@ import "testing"
 
 func TestValidCheck(t *testing.T) {
 
-	cases := []string{"", "[]", "[()]", "[[]]", "([()])", "{[()]}"}
+	cases := []string{"", "[]", "[()]", "[[]]", "([()])", "{[()]}", "[[[[[[[[[[[[[[[{{{{{{{{{{}}}}}}}}}}]]]]]]]]]]]]]]]", "[[[]]][[{}]()()]{{()[][()]}}"}
 
 	for _, str := range cases {
 		valid, err := Check(str)
@@ -16,7 +16,7 @@ func TestValidCheck(t *testing.T) {
 }
 
 func TestMismatchError(t *testing.T) {
-	cases := []string{"([)]", "([)", ")()(", "([]{)}"}
+	cases := []string{"([)]", "([)", ")()(", "([]{)}", "[[[]]][[{}]()(]{{()[][()]}}"}
 
 	for _, str := range cases {
 		valid, err := Check(str)
@@ -25,18 +25,14 @@ func TestMismatchError(t *testing.T) {
 			t.Errorf("Text: %q, Status: Valid,  Expected: Invalid,  Error: %v", str, err)
 		}
 
-		if err != nil {
-			switch err.(type) {
-			case *MismatchError:
-			default:
-				t.Errorf("Text: %q,  Error: %v, Expected: MismatchError", str, err)
-			}
+		if _, ok := err.(*MismatchError); !ok {
+			t.Errorf("Text: %q,  Error: %v, Expected: MismatchError", str, err)
 		}
 	}
 }
 
 func TestUnclosedParenthesesError(t *testing.T) {
-	cases := []string{"(((", "[[]", "(())(", "{{{()}}"}
+	cases := []string{"(((", "[[]", "(())(", "{{{()}}", "[[[]]][[{}]()()]{{()[][()]}}{{"}
 
 	for _, str := range cases {
 		valid, err := Check(str)
@@ -45,18 +41,14 @@ func TestUnclosedParenthesesError(t *testing.T) {
 			t.Errorf("Text: %q, Status: Valid,  Expected: Invalid,  Error: %v", str, err)
 		}
 
-		if err != nil {
-			switch err.(type) {
-			case *UnclosedParenthesesError:
-			default:
-				t.Errorf("Text: %q,  Error: %v, Expected: UnclosedParenthesesError", str, err)
-			}
+		if _, ok := err.(*UnclosedParenthesesError); !ok {
+			t.Errorf("Text: %q,  Error: %v, Expected: UnclosedParenthesesError", str, err)
 		}
 	}
 }
 
 func TestUnknownCharacterError(t *testing.T) {
-	cases := []string{"((a))", "[]abc", "abf"}
+	cases := []string{"((a))", "[]abc", "abf", "[[[]]][[{}]()()]{{()[][()]a}}"}
 
 	for _, str := range cases {
 		valid, err := Check(str)
@@ -65,21 +57,17 @@ func TestUnknownCharacterError(t *testing.T) {
 			t.Errorf("Text: %q, Status: Valid,  Expected: Invalid,  Error: %v", str, err)
 		}
 
-		if err != nil {
-			switch err.(type) {
-			case *UnknownCharacterError:
-			default:
-				t.Errorf("Text: %q,  Error: %v, Expected: UnknownCharacterError", str, err)
-			}
+		if _, ok := err.(*UnknownCharacterError); !ok {
+			t.Errorf("Text: %q,  Error: %v, Expected: UnknownCharacterError", str, err)
 		}
 	}
 }
 
 func TestCheckCustom(t *testing.T) {
 
-	cases := []struct{
+	cases := []struct {
 		str, opens, closes string
-		valid bool
+		valid              bool
 	}{
 		{"<>", "<", ">", true},
 		{"{{}}\\/", "\\{", "/}", true},
