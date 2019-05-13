@@ -10,7 +10,8 @@ It checks parenthesis balance of given string and save request history to memory
 # Enter to server directory
 $ cd server
 
-# If you want to use in memory database, you don't have to copy config file. Default: in memory database
+# If you want to use in memory database, you don't have to copy config file. 
+# Default: in memory database
 # Copy config.example.json to config.json
 $ cp config/config.example.json config/config.json
 # Put database credentials into config.json
@@ -167,3 +168,11 @@ It accepts `start` and `end` as query parameter. They are optional.
     }
 ]
 ```
+
+### Credits
+- [Bootstrap 4](https://getbootstrap.com)
+- [jQuery](https://jquery.com)
+- [Date Range Picker](http://www.daterangepicker.com)
+- [Moment.js](https://momentjs.com)
+- [Chart.js](https://www.chartjs.org)
+
