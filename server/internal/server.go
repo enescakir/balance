@@ -12,6 +12,7 @@ import (
 
 // Server keeps shared dependencies.
 type Server struct {
+	srv    http.Server
 	repo   querylog.Repository
 	router *http.ServeMux
 	port   int
@@ -21,10 +22,17 @@ type Server struct {
 func NewServer(cfg config.Config) *Server {
 	mux := http.NewServeMux()
 
-	db := database.New(cfg)
-	database.Migrate(db)
+	var repo querylog.Repository
 
-	repo := querylog.NewMysqlRepository(db)
+	if cfg.Database.Driver == config.MySQL {
+		log.Printf("MySQL database is selected")
+		db := database.New(cfg)
+		database.Migrate(db)
+		repo = querylog.NewMysqlRepository(db)
+	} else {
+		log.Printf("In memory database is selected")
+		repo = querylog.NewMemoryRepository()
+	}
 	s := &Server{repo: repo, router: mux, port: cfg.Port}
 
 	return s
@@ -37,6 +45,9 @@ func (s *Server) Start() {
 	s.routes()
 
 	address := fmt.Sprintf(":%d", s.port)
+	s.srv = http.Server{Addr: address, Handler: s.router}
 
-	log.Fatal(http.ListenAndServe(address, s.router))
+	if err := s.srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Fatal(err)
+	}
 }

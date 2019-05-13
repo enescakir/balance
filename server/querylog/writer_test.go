@@ -42,4 +42,20 @@ func TestLoggerWriter_Header(t *testing.T) {
 	if err != nil && i != 0 {
 		t.Errorf("LoggerWriter could't write")
 	}
+
+	if lw.Status != Balanced {
+		t.Errorf("LoggerWriter status Actual: %v  Expected: %v", lw.Status, Balanced)
+	}
+
+	res = "{\"valid\": false, \"error\": \"Mismatch error\"}"
+
+	i, err = lw.Write([]byte(res))
+
+	if err != nil && i != 0 {
+		t.Errorf("LoggerWriter could't write")
+	}
+
+	if lw.Status != Unbalanced {
+		t.Errorf("LoggerWriter status Actual: %v  Expected: %v", lw.Status, Unbalanced)
+	}
 }

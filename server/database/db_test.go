@@ -7,7 +7,7 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	cfg := config.Read("../config/config.test.json")
+	cfg := config.Read("../config/config.mysql.json")
 
 	db := New(cfg)
 

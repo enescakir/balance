@@ -1,6 +1,7 @@
 {
   "Port": 8080,
   "Database": {
+    "Driver": "memory",  // memory or mysql
     "Host": "127.0.0.1",
     "Name": "balance",
     "User": "root",

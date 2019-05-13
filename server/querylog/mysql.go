@@ -3,6 +3,7 @@ package querylog
 import (
 	"database/sql"
 	"fmt"
+	"github.com/enescakir/balance/server/database"
 	"log"
 	"strings"
 )
@@ -15,6 +16,11 @@ type MysqlRepository struct {
 // NewMysqlRepository returns newly created MysqlRepository reference with given database.
 func NewMysqlRepository(db *sql.DB) *MysqlRepository {
 	return &MysqlRepository{db: db}
+}
+
+// Flush drops all tables on MySQL database.
+func (r *MysqlRepository) Flush() {
+	database.Rollback(r.db)
 }
 
 // Store saves given QueryLog to MySQL database.
