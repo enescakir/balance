@@ -2,35 +2,38 @@
 package internal
 
 import (
-	"database/sql"
 	"fmt"
+	"github.com/enescakir/balance/server/config"
+	"github.com/enescakir/balance/server/database"
 	"github.com/enescakir/balance/server/querylog"
-	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"net/http"
 )
 
 // Server keeps shared dependencies.
 type Server struct {
+	srv    http.Server
 	repo   querylog.Repository
 	router *http.ServeMux
 	port   int
 }
 
 // NewServer returns newly created Server reference with initialized mux and database connection.
-func NewServer(cfg Config) *Server {
+func NewServer(cfg config.Config) *Server {
 	mux := http.NewServeMux()
 
-	address := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true", cfg.Database.User, cfg.Database.Password, cfg.Database.Host, cfg.Database.Port, cfg.Database.Name)
-	db, err := sql.Open("mysql", address)
+	var repo querylog.Repository
 
-	if err != nil {
-		log.Fatal("Can't not connect database")
+	if cfg.Database.Driver == config.MySQL {
+		log.Printf("MySQL database is selected")
+		db := database.New(cfg)
+		database.Migrate(db)
+		repo = querylog.NewMysqlRepository(db)
+	} else {
+		log.Printf("In memory database is selected")
+		repo = querylog.NewMemoryRepository()
 	}
-
-	repo := querylog.NewMysqlRepository(db)
 	s := &Server{repo: repo, router: mux, port: cfg.Port}
-	s.migrate(db)
 
 	return s
 }
@@ -42,26 +45,9 @@ func (s *Server) Start() {
 	s.routes()
 
 	address := fmt.Sprintf(":%d", s.port)
+	s.srv = http.Server{Addr: address, Handler: s.router}
 
-	log.Fatal(http.ListenAndServe(address, s.router))
-}
-
-// migrate creates data tables if not exists
-func (s *Server) migrate(db *sql.DB) {
-	migration := `
-	CREATE TABLE IF NOT EXISTS logs (
- 		id int(11) unsigned NOT NULL AUTO_INCREMENT,
- 		query text COLLATE utf8mb4_general_ci,
- 		status int(11) NOT NULL DEFAULT '0',
- 		response_time bigint(11) NOT NULL,
- 		created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  		PRIMARY KEY (id)
-	) ENGINE=InnoDB AUTO_INCREMENT=141 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;`
-
-	_, err := db.Exec(migration)
-
-	if err != nil {
-		log.Fatalf("Can't not create logs table: %s", err.Error())
+	if err := s.srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Fatal(err)
 	}
-
 }

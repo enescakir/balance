@@ -11,8 +11,10 @@ type QueryLog struct {
 	CreatedAt    time.Time `json:"created_at"`
 }
 
-// QueryLogs is a collection of QueryLog.
-type QueryLogs []QueryLog
+// New returns newly created QueryLog reference.
+func New(query string, status Status, rTime int64) *QueryLog {
+	return &QueryLog{Query: query, Status: status, ResponseTime: rTime}
+}
 
 // StatusCount represents status:count pair.
 type StatusCount struct {
@@ -35,8 +37,3 @@ const (
 	Unbalanced Status = 2
 	Invalid    Status = 3
 )
-
-// NewQueryLog returns newly created QueryLog reference.
-func NewQueryLog(query string, status Status, rTime int64) *QueryLog {
-	return &QueryLog{Query: query, Status: status, ResponseTime: rTime}
-}

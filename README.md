@@ -56,14 +56,16 @@ valid, err := balance.CheckCustom("<><><>", "<<", ">")
 ## HTTP Server
 It's a simple HTTP server that shows example usage for `balance` package.
 
-It checks parenthesis balance of given string and save request history to MySQL database for calculating some metrics.
+It checks parenthesis balance of given string and save request history to memory or MySQL database for calculating some metrics.
 
 Visit `server` directory for [detailed documentation](https://github.com/EnesCakir/balance/tree/master/server).
+
+![Dashboard](https://github.com/EnesCakir/balance/blob/master/dashboard.png)
 
 ## Testing
 You can use `go test` method for unit tests.
 
-**Test coverage:** %100
+**Test coverage:** 100%
 
 ## Contributing
 `balance` is an open source project run by `Enes Çakır`, and contributions are welcome! Check out the [Issues](https://github.com/enescakir/balance/issues) page to see if your idea for a contribution has already been mentioned, and feel free to raise an issue or submit a pull request.

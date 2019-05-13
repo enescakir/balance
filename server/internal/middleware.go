@@ -29,7 +29,7 @@ func (s *Server) log(h http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		q := querylog.NewQueryLog(*req.Query, lw.Status, time.Since(start).Nanoseconds())
+		q := querylog.New(*req.Query, lw.Status, time.Since(start).Nanoseconds())
 		s.repo.Store(q)
 
 		defer log.Printf("%s\t%10s %10dms %10q", r.Method, r.RequestURI, q.ResponseTime/1000, q.Query)

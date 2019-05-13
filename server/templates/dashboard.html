@@ -44,7 +44,7 @@
         </div>
     </div>
     <div class="row mt-4">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card text-center">
                 <div class="card-body">
                     <h5 class="card-title">Total Request</h5>
@@ -52,18 +52,26 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card text-center">
                 <div class="card-body">
-                    <h5 class="card-title">Valid Request</h5>
-                    <h3 class="card-text" id="valid-count">-</h3>
+                    <h5 class="card-title">Balanced</h5>
+                    <h3 class="card-text" id="balanced-count">-</h3>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card text-center">
                 <div class="card-body">
-                    <h5 class="card-title">Invalid Request</h5>
+                    <h5 class="card-title">Unbalanced</h5>
+                    <h3 class="card-text" id="unbalanced-count">-</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Invalid</h5>
                     <h3 class="card-text" id="invalid-count">-</h3>
                 </div>
             </div>
@@ -141,15 +149,18 @@
             url: "http://localhost:8080/logs/status?start=" + start + "&end=" + end
         }).done(function (response) {
             console.log("Counts", response);
-            $("#valid-count").text(0);
+            $("#balanced-count").text(0);
+            $("#unbalanced-count").text(0);
             $("#invalid-count").text(0);
 
             var sum = 0;
             response.forEach(function (value) {
                 sum += value.count
                 if (value.status == 1) {
-                    $("#valid-count").text(value.count)
+                    $("#balanced-count").text(value.count)
                 } else if (value.status == 2) {
+                    $("#unbalanced-count").text(value.count)
+                } else if (value.status == 3) {
                     $("#invalid-count").text(value.count)
                 }
             });
@@ -168,10 +179,16 @@
                 rows = "<tr><th colspan='5' class='text-center p-5'><h2>No logs available</h2></th></tr>"
             }
             response.forEach(function (value) {
+                var status = "Invalid";
+                if (value.status == 1) {
+                    status = "Balanced"
+                } else if (value.status == 2) {
+                    status = "Unbalanced"
+                }
                 rows += "<tr>" +
                     "<td>" + value.id + "</td>" +
                     "<td>" + value.query + "</td>" +
-                    "<td>" + value.status + "</td>" +
+                    "<td>" + status + "</td>" +
                     "<td>" + (value.response_time / 1e+3) + "</td>" +
                     "<td>" + moment(value.created_at).format("DD.MM.YYYY HH:mm") + "</td>" +
                     "</tr>";

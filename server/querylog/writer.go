@@ -3,6 +3,7 @@ package querylog
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 )
 
 // LoggerWriter intercepts server response and detects the status of response in the server middleware.
@@ -37,9 +38,10 @@ func (w *LoggerWriter) Write(b []byte) (int, error) {
 	_ = json.Unmarshal(b, &r)
 	if r.Valid {
 		w.Status = Balanced
-	} else {
+	} else if strings.Index(r.Error, "Mismatch") != -1 || strings.Index(r.Error, "Unclosed") != -1 {
 		w.Status = Unbalanced
+	} else {
+		w.Status = Invalid
 	}
-
 	return w.writer.Write(b)
 }

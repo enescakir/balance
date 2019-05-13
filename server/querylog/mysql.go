@@ -3,11 +3,12 @@ package querylog
 import (
 	"database/sql"
 	"fmt"
+	"github.com/enescakir/balance/server/database"
 	"log"
 	"strings"
 )
 
-// MysqlRepository implements Repository interface for MySQL.
+// MysqlRepository implements RepositorQueryLogy interface for MySQL.
 type MysqlRepository struct {
 	db *sql.DB
 }
@@ -17,15 +18,21 @@ func NewMysqlRepository(db *sql.DB) *MysqlRepository {
 	return &MysqlRepository{db: db}
 }
 
+// Flush drops all tables on MySQL database.
+func (r *MysqlRepository) Flush() {
+	database.Rollback(r.db)
+}
+
 // Store saves given QueryLog to MySQL database.
 func (r *MysqlRepository) Store(l *QueryLog) error {
 	insert, err := r.db.Query("INSERT INTO logs (query, Status, response_time) VALUES (?, ?, ?)", l.Query, l.Status, l.ResponseTime)
-	defer insert.Close()
 
 	if err != nil {
 		log.Printf("Can't insert log to DB: %s", err.Error())
 		return err
 	}
+
+	defer insert.Close()
 
 	return nil
 }
@@ -37,12 +44,13 @@ func (r *MysqlRepository) FindAll(start string, end string) ([]*QueryLog, error)
 	query := fmt.Sprintf("SELECT * FROM logs %s ORDER BY created_at DESC", where)
 
 	results, err := r.db.Query(query, args...)
-	defer results.Close()
 
 	if err != nil {
 		log.Printf("Can't get logs from DB: %s", err.Error())
 		return nil, err
 	}
+
+	defer results.Close()
 
 	logs := []*QueryLog{}
 
@@ -66,12 +74,13 @@ func (r *MysqlRepository) GetCountByStatus(start string, end string) ([]*StatusC
 	query := fmt.Sprintf("SELECT status, COUNT(*) as count FROM logs %s GROUP BY status", where)
 
 	results, err := r.db.Query(query, args...)
-	defer results.Close()
 
 	if err != nil {
 		log.Printf("Can't get log counts by status from DB: %s", err.Error())
 		return nil, err
 	}
+
+	defer results.Close()
 
 	counts := []*StatusCount{}
 
@@ -100,13 +109,13 @@ func (r *MysqlRepository) GetHistogramBins(start string, end string) ([]*Histogr
 	query := fmt.Sprintf("SELECT ROUND(response_time, -4) AS value, COUNT(*) AS count FROM logs %s GROUP BY value ORDER BY value", where)
 
 	results, err := r.db.Query(query, args...)
-	defer results.Close()
 
 	if err != nil {
 		log.Printf("Can't get log response time histogram from DB: %s", err.Error())
 		return nil, err
 	}
 
+	defer results.Close()
 	prev := 0
 	bins := []*HistogramBin{}
 
