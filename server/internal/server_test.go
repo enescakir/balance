@@ -128,13 +128,14 @@ func TestDashboardHandler(t *testing.T) {
 	rec := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/", nil)
 	s.router.ServeHTTP(rec, req)
-	if rec.Code != http.StatusOK {
+	if rec.Code != http.StatusNotFound {
 		t.Errorf("/ endpoint StatusOK has problem: %v", rec.Code)
 	}
 
 	rec = httptest.NewRecorder()
 	req, _ = http.NewRequest("POST", "/", nil)
 	s.router.ServeHTTP(rec, req)
+
 	if rec.Code != http.StatusMethodNotAllowed {
 		t.Errorf("/ endpoint StatusMethodNotAllowed has problem: %v", rec.Code)
 	}
@@ -162,4 +163,3 @@ func TestMysqlServer(t *testing.T) {
 	}
 
 }
-
