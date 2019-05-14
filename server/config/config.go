@@ -46,6 +46,7 @@ func Read(filename string) Config {
 	decoder := json.NewDecoder(file)
 	err = decoder.Decode(&cfg)
 
+	// If couldn't open config file, read them from environment
 	if err != nil {
 		log.Println("Can't decode config JSON")
 		cfg.Database.Host = os.Getenv("DATABASE_HOST")

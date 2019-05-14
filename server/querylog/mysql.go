@@ -52,23 +52,11 @@ func (r *MysqlRepository) FindAll(start string, end string) ([]*QueryLog, error)
 
 	defer results.Close()
 
-	logs := []*QueryLog{}
-
-	for results.Next() {
-		var l QueryLog
-		err = results.Scan(&l.Id, &l.Query, &l.Status, &l.ResponseTime, &l.CreatedAt)
-		if err != nil {
-			log.Printf("Can't parse log row: %s", err.Error())
-			return nil, err
-		}
-		logs = append(logs, &l)
-	}
-
-	return logs, nil
+	return parseLogs(results)
 }
 
-// GetCountByStatus returns status:count pairs for given data range from MySQL database.
-func (r *MysqlRepository) GetCountByStatus(start string, end string) ([]*StatusCount, error) {
+// CountByStatus returns status:count pairs for given data range from MySQL database.
+func (r *MysqlRepository) CountByStatus(start string, end string) ([]*StatusCount, error) {
 	where, args := buildDateRangeQuery(start, end)
 
 	query := fmt.Sprintf("SELECT status, COUNT(*) as count FROM logs %s GROUP BY status", where)
@@ -82,61 +70,31 @@ func (r *MysqlRepository) GetCountByStatus(start string, end string) ([]*StatusC
 
 	defer results.Close()
 
-	counts := []*StatusCount{}
-
-	for results.Next() {
-		var c StatusCount
-		err = results.Scan(&c.Status, &c.Count)
-		if err != nil {
-			log.Printf("Can't parse log status count row: %s", err.Error())
-			return nil, err
-		}
-		counts = append(counts, &c)
-	}
-
-	return counts, nil
+	return parseStatusCounts(results)
 }
 
-// GetHistogramBins returns responseTime:count bins for given data range from MySQL database.
-func (r *MysqlRepository) GetHistogramBins(start string, end string) ([]*HistogramBin, error) {
-	type Bucket struct {
-		Value int `json:"value"`
-		Count int `json:"count"`
-	}
-
+// HistogramBins returns responseTime:count bins for given data range from MySQL database.
+func (r *MysqlRepository) HistogramBins(start string, end string) ([]*HistogramBin, error) {
 	where, args := buildDateRangeQuery(start, end)
 
-	query := fmt.Sprintf("SELECT ROUND(response_time, -4) AS value, COUNT(*) AS count FROM logs %s GROUP BY value ORDER BY value", where)
+	query := fmt.Sprintf("SELECT * FROM logs %s ORDER BY created_at DESC", where)
 
 	results, err := r.db.Query(query, args...)
 
 	if err != nil {
-		log.Printf("Can't get log response time histogram from DB: %s", err.Error())
+		log.Printf("Can't get logs from DB: %s", err.Error())
 		return nil, err
 	}
 
 	defer results.Close()
-	prev := 0
-	bins := []*HistogramBin{}
 
-	for results.Next() {
-		var b Bucket
-		err = results.Scan(&b.Value, &b.Count)
-		if err != nil {
-			log.Printf("Can't parse log response time histogram row: %s", err.Error())
-			return nil, err
-		}
-		for b.Value > prev {
-			label := fmt.Sprintf("%d-%d", prev/1000, (prev+10000)/1000)
-			bins = append(bins, &HistogramBin{label, 0})
-			prev = prev + 10000
-		}
-		prev = prev + 10000
-		label := fmt.Sprintf("%d-%d", b.Value/1000, (b.Value+10000)/1000)
-		bins = append(bins, &HistogramBin{label, b.Count})
+	logs, err := parseLogs(results)
+	if err != nil {
+		log.Printf("Can't parse logs %s", err.Error())
+		return nil, err
 	}
 
-	return bins, nil
+	return createHistogramBins(logs), nil
 }
 
 // buildDateRangeQuery generates prepared SQL query for given start and end date.
@@ -160,4 +118,38 @@ func buildDateRangeQuery(start string, end string) (string, []interface{}) {
 	}
 
 	return where, values
+}
+
+// parseLogs converts MySQL results to QueryLog collection
+func parseLogs(results *sql.Rows) ([]*QueryLog, error) {
+	logs := make([]*QueryLog, 0)
+
+	for results.Next() {
+		var l QueryLog
+		err := results.Scan(&l.Id, &l.Query, &l.Status, &l.ResponseTime, &l.CreatedAt)
+		if err != nil {
+			log.Printf("Can't parse log row: %s", err.Error())
+			return nil, err
+		}
+		logs = append(logs, &l)
+	}
+
+	return logs, nil
+}
+
+// parseStatusCounts converts MySQL results to StatusCount collection
+func parseStatusCounts(results *sql.Rows) ([]*StatusCount, error) {
+	counts := make([]*StatusCount, 0)
+
+	for results.Next() {
+		var c StatusCount
+		err := results.Scan(&c.Status, &c.Count)
+		if err != nil {
+			log.Printf("Can't parse log status count row: %s", err.Error())
+			return nil, err
+		}
+		counts = append(counts, &c)
+	}
+
+	return counts, nil
 }

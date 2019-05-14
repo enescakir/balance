@@ -1,7 +1,6 @@
 package querylog
 
 import (
-	"fmt"
 	"log"
 	"sync"
 	"time"
@@ -15,13 +14,13 @@ type MemoryRepository struct {
 
 // NewMemoryRepository returns newly created MemoryRepository reference with given database.
 func NewMemoryRepository() *MemoryRepository {
-	return &MemoryRepository{data: []QueryLog{}, mutex:
+	return &MemoryRepository{data: make([]QueryLog, 0), mutex:
 	&sync.Mutex{}}
 }
 
 // Flush removes all data from in memory database.
 func (r *MemoryRepository) Flush() {
-	r.data = []QueryLog{}
+	r.data = make([]QueryLog, 0)
 }
 
 // Store saves given QueryLog to in memory database.
@@ -37,7 +36,7 @@ func (r *MemoryRepository) Store(l *QueryLog) error {
 
 // FindAll returns all logs for given data range from in memory database.
 func (r *MemoryRepository) FindAll(start string, end string) ([]*QueryLog, error) {
-	logs, err := r.getDateRangeLogs(start, end)
+	logs, err := r.logsByDateRange(start, end)
 
 	if err != nil {
 		log.Printf("FindAll date parsing error: %s", err.Error())
@@ -47,16 +46,16 @@ func (r *MemoryRepository) FindAll(start string, end string) ([]*QueryLog, error
 	return logs, nil
 }
 
-// GetCountByStatus returns status:count pairs for given data range from in memory database.
-func (r *MemoryRepository) GetCountByStatus(start string, end string) ([]*StatusCount, error) {
-	logs, err := r.getDateRangeLogs(start, end)
+// CountByStatus returns status:count pairs for given data range from in memory database.
+func (r *MemoryRepository) CountByStatus(start string, end string) ([]*StatusCount, error) {
+	logs, err := r.logsByDateRange(start, end)
 
 	if err != nil {
-		log.Printf("GetCountByStatus date parsing error: %s", err.Error())
+		log.Printf("CountByStatus date parsing error: %s", err.Error())
 		return nil, err
 	}
 
-	pairs := map[Status]int{}
+	pairs := make(map[Status]int, 0)
 	for _, l := range logs {
 		if val, ok := pairs[l.Status]; ok {
 			pairs[l.Status] = val + 1
@@ -64,7 +63,8 @@ func (r *MemoryRepository) GetCountByStatus(start string, end string) ([]*Status
 			pairs[l.Status] = 1
 		}
 	}
-	counts := []*StatusCount{}
+
+	counts := make([]*StatusCount, 0)
 	for k, v := range pairs {
 		counts = append(counts, &StatusCount{k, v})
 	}
@@ -72,70 +72,34 @@ func (r *MemoryRepository) GetCountByStatus(start string, end string) ([]*Status
 	return counts, nil
 }
 
-// GetHistogramBins returns responseTime:count bins for given data range from in memory database.
-func (r *MemoryRepository) GetHistogramBins(start string, end string) ([]*HistogramBin, error) {
-	logs, err := r.getDateRangeLogs(start, end)
+// HistogramBins returns responseTime:count bins for given data range from in memory database.
+func (r *MemoryRepository) HistogramBins(start string, end string) ([]*HistogramBin, error) {
+	logs, err := r.logsByDateRange(start, end)
 
 	if err != nil {
-		log.Printf("GetHistogramBins date parsing error: %s", err.Error())
+		log.Printf("HistogramBins date parsing error: %s", err.Error())
 		return nil, err
 	}
 
-	buckets := map[string]int{}
-	max := int64(0)
-	for _, l := range logs {
-		if l.ResponseTime > max {
-			max = l.ResponseTime
-		}
-		left := (l.ResponseTime / 10000) * 10000
-		lbl := fmt.Sprintf("%d-%d", left/1000, (left+10000)/1000)
-		if val, ok := buckets[lbl]; ok {
-			buckets[lbl] = val + 1
-		} else {
-			buckets[lbl] = 1
-		}
-	}
-
-	bins := []*HistogramBin{}
-	for i := int64(0); i < max; i += 10000 {
-		lbl := fmt.Sprintf("%d-%d", i/1000, (i+10000)/1000)
-		if val, ok := buckets[lbl]; ok {
-			bins = append(bins, &HistogramBin{lbl, val})
-		} else {
-			bins = append(bins, &HistogramBin{lbl, 0})
-		}
-	}
-
-	return bins, nil
+	return createHistogramBins(logs), nil
 }
 
-// getDateRangeLogs returns logs in given start and end date.
-func (r *MemoryRepository) getDateRangeLogs(start string, end string) ([]*QueryLog, error) {
-	logs := []*QueryLog{}
-	var sDate *time.Time
-	var eDate *time.Time
-	loc, _ := time.LoadLocation("Europe/Istanbul")
-
-	if start != "" {
-		date, err := time.ParseInLocation("2006-01-02 15:04:05", start, loc)
-		sDate = &date
-
-		if err != nil {
-			log.Printf("Start date convert error: %v", err.Error())
-			return nil, err
-		}
+// logsByDateRange returns logs in given start and end date.
+func (r *MemoryRepository) logsByDateRange(start string, end string) ([]*QueryLog, error) {
+	sDate, err := parseTimeWithLocation(start)
+	if err != nil {
+		return nil, err
 	}
-
-	if end != "" {
-		date, err := time.ParseInLocation("2006-01-02 15:04:05", end, loc)
-		eDate = &date
-
-		if err != nil {
-			log.Printf("End date convert error: %v", err.Error())
-			return nil, err
-		}
+	eDate, err := parseTimeWithLocation(end)
+	if err != nil {
+		return nil, err
 	}
+	return r.createLogsByDateRange(sDate, eDate), nil
+}
 
+// createLogsByDateRange returns logs in rage of given Time references
+func (r *MemoryRepository) createLogsByDateRange(sDate *time.Time, eDate *time.Time) []*QueryLog {
+	logs := make([]*QueryLog, 0)
 	for i := 0; i < len(r.data); i++ {
 		l := &r.data[i]
 		s := !(sDate != nil && l.CreatedAt.Before(*sDate))
@@ -146,5 +110,18 @@ func (r *MemoryRepository) getDateRangeLogs(start string, end string) ([]*QueryL
 		}
 
 	}
-	return logs, nil
+	return logs
+}
+
+// parseTimeWithLocation converts given string to Time
+func parseTimeWithLocation(timeStr string) (*time.Time, error) {
+	if timeStr == "" {
+		return nil, nil
+	}
+	date, err := time.ParseInLocation(TimeFormat, timeStr, defaultLoc)
+	if err != nil {
+		log.Printf("Date convert error: %v", err)
+		return nil, err
+	}
+	return &date, nil
 }

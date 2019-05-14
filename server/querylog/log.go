@@ -22,12 +22,6 @@ type StatusCount struct {
 	Count  int    `json:"count"`
 }
 
-// HistogramBin represents responseTime:count bins.
-type HistogramBin struct {
-	Label string `json:"label"`
-	Count int    `json:"count"`
-}
-
 // Status represents result of the request in QueryLog.
 type Status int
 

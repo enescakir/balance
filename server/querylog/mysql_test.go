@@ -34,8 +34,8 @@ func TestMysqlRepository(t *testing.T) {
 	repo := NewMysqlRepository(db)
 	defer repo.Flush()
 
-	before := time.Now().Add(-time.Hour).Format("2006-01-02 15:04:05")
-	after := time.Now().Add(time.Hour).Format("2006-01-02 15:04:05")
+	before := time.Now().Add(-time.Hour).Format(TimeFormat)
+	after := time.Now().Add(time.Hour).Format(TimeFormat)
 
 	// Test Store()
 	for _, c := range cases {
@@ -74,8 +74,8 @@ func TestMysqlRepository(t *testing.T) {
 		t.Errorf("Find all count not matched in date range  Actual: %d  Expected: %d", len(logs), 0)
 	}
 
-	// Test GetCountByStatus(start, end)
-	counts, err := repo.GetCountByStatus("", "")
+	// Test CountByStatus(start, end)
+	counts, err := repo.CountByStatus("", "")
 	for _, pair := range counts {
 		if pair.Status == Balanced && pair.Count != 2 {
 			t.Errorf("Balanced logs counts Actual: %d  Expected: %d", pair.Count, 2)
@@ -86,8 +86,8 @@ func TestMysqlRepository(t *testing.T) {
 		}
 	}
 
-	// Test GetCountByStatus(start, end)
-	bins, err := repo.GetHistogramBins("", "")
+	// Test CountByStatus(start, end)
+	bins, err := repo.HistogramBins("", "")
 	for _, bin := range bins {
 		if bin.Label == "0-10" && bin.Count != 1 {
 			t.Errorf("Histogram bin %s Actual: %d  Expected: %d", bin.Label, bin.Count, 1)
@@ -125,14 +125,14 @@ func TestMysqlRepositoryConnectError(t *testing.T) {
 		t.Errorf("Repo shouldn't get all logs")
 	}
 
-	// Test GetCountByStatus(start, end) Fail
-	counts, err := repo.GetCountByStatus("", "")
+	// Test CountByStatus(start, end) Fail
+	counts, err := repo.CountByStatus("", "")
 	if err == nil || len(counts) != 0 {
 		t.Errorf("Repo shouldn't get count by status")
 	}
 
-	// Test GetHistogramBins(start, end) Fail
-	bins, err := repo.GetHistogramBins("", "")
+	// Test HistogramBins(start, end) Fail
+	bins, err := repo.HistogramBins("", "")
 	if err == nil || len(bins) != 0 {
 		t.Errorf("Repo shouldn't get histogram bins")
 	}

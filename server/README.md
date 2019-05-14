@@ -138,7 +138,7 @@ It accepts `start` and `end` as query parameter. They are optional.
 #### **GET** /logs/histogram
 
 Returns the collection of label:responseTime bins at given date range.
-Labels are milliseconds.
+Labels are microseconds.
 
 It accepts `start` and `end` as query parameter. They are optional.
 

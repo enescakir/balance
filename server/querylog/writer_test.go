@@ -29,7 +29,7 @@ func TestLoggerWriter_Header(t *testing.T) {
 		t.Errorf("LoggerWriter header should be empty")
 	}
 
-	i, err := lw.Write([]byte{})
+	i, err := lw.Write(make([]byte, 0))
 
 	if err != nil && i != 0 {
 		t.Errorf("LoggerWriter could't write")

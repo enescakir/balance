@@ -41,7 +41,7 @@ func (s *Server) handleLogStatusCounts() http.HandlerFunc {
 		start := r.URL.Query().Get("start")
 		end := r.URL.Query().Get("end")
 
-		counts, err := s.repo.GetCountByStatus(start, end)
+		counts, err := s.repo.CountByStatus(start, end)
 
 		w.Header().Set("Content-Type", "application/json")
 		err = json.NewEncoder(w).Encode(counts)
@@ -65,7 +65,7 @@ func (s *Server) handleLogResponseHistogram() http.HandlerFunc {
 		start := r.URL.Query().Get("start")
 		end := r.URL.Query().Get("end")
 
-		bins, err := s.repo.GetHistogramBins(start, end)
+		bins, err := s.repo.HistogramBins(start, end)
 
 		w.Header().Set("Content-Type", "application/json")
 		err = json.NewEncoder(w).Encode(bins)
