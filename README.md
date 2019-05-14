@@ -53,6 +53,11 @@ valid, err := balance.CheckCustom("<><><>", "<<", ">")
 // Returns: valid => false, err => CustomPairError
 ```
 
+## How It Works
+The balance checking algorithm uses stack at the core. The stack is simple First in Last out data structure.
+
+The algorithm iterates over the given string. If it encounters an opening character, pushes the character to stack. On the other hand, if it gets a closing character, pops the top element from the stack and checks them for pairing. Eventually, if they aren't matching pairs, it raises `MismatchError`. If the encountered character is not a member of either the opening or closing sets, it raises `UnknownCharacterError`. End of the iteration, the stack should be empty. If not, there is an unclosed parenthesis. So it raises `UnclosedParenthesesError`
+
 ## HTTP Server
 It's a simple HTTP server that shows example usage for `balance` package.
 
