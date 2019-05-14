@@ -22,7 +22,11 @@ RUN apk add --no-cache openssl ca-certificates \
     && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
-WORKDIR /root/
+RUN mkdir /app
+
+WORKDIR /app
+
+COPY server/templates ./templates
 
 COPY --from=builder /go/bin/server .
 
