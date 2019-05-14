@@ -10,7 +10,7 @@ It checks parenthesis balance of given string and save request history to memory
 # Enter to server directory
 $ cd server
 
-# If you want to use in memory database, you don't have to copy config file. 
+# If you want to use in memory database, you don't have to copy config file.
 # Default: in memory database
 # Copy config.example.json to config.json
 $ cp config/config.example.json config/config.json
@@ -19,7 +19,7 @@ $ cp config/config.example.json config/config.json
 # Download goland MySQL driver
 $ go get -u github.com/go-sql-driver/mysql
 
-# Run server 
+# Run server
 $ go run main.go
 
 # Visit `http://localhost:8080/`
@@ -37,7 +37,7 @@ You can use `go test ./...` command for testing.
 #### Docker
 You can use balance server with Docker
 
-**Notice:** `Dockerfile` is at project root, not the server root. Because this repository isn't public right now. 
+**Notice:** `Dockerfile` is at project root, not the server root. Because this repository isn't public right now.
 When we put it to the server root, it can't download `github.com/enescakir/balance` package.
 
 ```shell
@@ -62,10 +62,11 @@ $ docker run -it -p 8080:8080 \
     balance
 ```
 
-### Endpoints     
+### Endpoints
+#### [Postman Documentation](https://documenter.getpostman.com/view/2986669/S1LzvkXh)
 #### **POST** /isbalanced
 
-Checks the parentheses balance of given expression 
+Checks the parentheses balance of given expression
 ```json
 // Example request body:
 {
