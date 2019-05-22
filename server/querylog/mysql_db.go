@@ -1,17 +1,25 @@
-package database
+package querylog
 
 import (
 	"database/sql"
 	"fmt"
 	"github.com/enescakir/balance/server/config"
+	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
 )
 
 // New creates new SQL DB instance end returns its reference.
-func New(cfg config.Config) *sql.DB {
-	address := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true", cfg.Database.User, cfg.Database.Password, cfg.Database.Host, cfg.Database.Port, cfg.Database.Name)
-	db, err := sql.Open("mysql", address)
+func NewMysqlDatabase(cfg config.Config) *sql.DB {
+	var dbConfig mysql.Config
+	dbConfig.User = cfg.Database.User
+	dbConfig.Passwd = cfg.Database.Password
+	dbConfig.Addr = fmt.Sprintf("%s:%d", cfg.Database.Host, cfg.Database.Port)
+	dbConfig.Net = "tcp"
+	dbConfig.DBName = cfg.Database.Name
+	dbConfig.ParseTime = true
+	dbConfig.AllowNativePasswords = true
+	db, err := sql.Open("mysql", dbConfig.FormatDSN())
 
 	if err != nil {
 		log.Fatalf("Can't not connect database: %s", err.Error())

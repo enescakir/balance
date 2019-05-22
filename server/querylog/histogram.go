@@ -23,21 +23,13 @@ func createHistogramBins(logs []*QueryLog) []*HistogramBin {
 		}
 		left := (l.ResponseTime / BinWidth) * BinWidth
 		lbl := fmt.Sprintf("%d-%d", left/NanoToMicro, (left+BinWidth)/NanoToMicro)
-		if val, ok := buckets[lbl]; ok {
-			buckets[lbl] = val + 1
-		} else {
-			buckets[lbl] = 1
-		}
+		buckets[lbl]++
 	}
 
 	bins := make([]*HistogramBin, 0)
 	for i := int64(0); i < max; i += BinWidth {
 		lbl := fmt.Sprintf("%d-%d", i/NanoToMicro, (i+BinWidth)/NanoToMicro)
-		if val, ok := buckets[lbl]; ok {
-			bins = append(bins, &HistogramBin{lbl, val})
-		} else {
-			bins = append(bins, &HistogramBin{lbl, 0})
-		}
+		bins = append(bins, &HistogramBin{lbl, buckets[lbl]})
 	}
 
 	return bins

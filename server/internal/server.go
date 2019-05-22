@@ -4,7 +4,6 @@ package internal
 import (
 	"fmt"
 	"github.com/enescakir/balance/server/config"
-	"github.com/enescakir/balance/server/database"
 	"github.com/enescakir/balance/server/querylog"
 	"log"
 	"net/http"
@@ -26,9 +25,7 @@ func NewServer(cfg config.Config) *Server {
 
 	if cfg.Database.Driver == config.MySQL {
 		log.Printf("MySQL database is selected")
-		db := database.New(cfg)
-		database.Migrate(db)
-		repo = querylog.NewMysqlRepository(db)
+		repo = querylog.NewMysqlRepository(cfg)
 	} else {
 		log.Printf("In memory database is selected")
 		repo = querylog.NewMemoryRepository()

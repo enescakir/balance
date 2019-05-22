@@ -42,17 +42,15 @@ func (s *Server) handleCheck() http.HandlerFunc {
 		// Put body content to request body again, because log middleware will read it
 		r.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 
-		// Validate given string
-		valid, err := balance.Check(*cReq.Query)
-
 		// Convert result to JSON and return it
 		var cRes response
 
-		cRes.Valid = valid
-
+		// Validate given string
+		valid, err := balance.Check(*cReq.Query)
 		if err != nil {
 			cRes.Error = err.Error()
 		}
+		cRes.Valid = valid
 
 		w.Header().Set("Content-Type", "application/json")
 		err = json.NewEncoder(w).Encode(cRes)

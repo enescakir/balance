@@ -3,36 +3,37 @@ package querylog
 import (
 	"database/sql"
 	"fmt"
-	"github.com/enescakir/balance/server/database"
+	"github.com/enescakir/balance/server/config"
 	"log"
 	"strings"
 )
 
-// MysqlRepository implements RepositorQueryLogy interface for MySQL.
+// MysqlRepository implements Repository interface for MySQL.
 type MysqlRepository struct {
 	db *sql.DB
 }
 
 // NewMysqlRepository returns newly created MysqlRepository reference with given database.
-func NewMysqlRepository(db *sql.DB) *MysqlRepository {
+func NewMysqlRepository(cfg config.Config) *MysqlRepository {
+	db := NewMysqlDatabase(cfg)
+	Migrate(db)
+
 	return &MysqlRepository{db: db}
 }
 
 // Flush drops all tables on MySQL database.
 func (r *MysqlRepository) Flush() {
-	database.Rollback(r.db)
+	Rollback(r.db)
 }
 
 // Store saves given QueryLog to MySQL database.
 func (r *MysqlRepository) Store(l *QueryLog) error {
-	insert, err := r.db.Query("INSERT INTO logs (query, Status, response_time) VALUES (?, ?, ?)", l.Query, l.Status, l.ResponseTime)
+	_, err := r.db.Exec("INSERT INTO logs (query, Status, response_time) VALUES (?, ?, ?)", l.Query, l.Status, l.ResponseTime)
 
 	if err != nil {
 		log.Printf("Can't insert log to DB: %s", err.Error())
 		return err
 	}
-
-	defer insert.Close()
 
 	return nil
 }

@@ -1,4 +1,4 @@
-package database
+package querylog
 
 import (
 	"github.com/enescakir/balance/server/config"
@@ -9,7 +9,7 @@ import (
 func TestNew(t *testing.T) {
 	cfg := config.Read("../config/config.mysql.json")
 
-	db := New(cfg)
+	db := NewMysqlDatabase(cfg)
 
 	err := db.Ping()
 	if err != nil {
@@ -20,7 +20,7 @@ func TestNew(t *testing.T) {
 func TestErrors(t *testing.T) {
 	cfg := config.Read("")
 
-	db := New(cfg)
+	db := NewMysqlDatabase(cfg)
 
 	Migrate(db)
 

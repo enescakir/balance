@@ -160,5 +160,4 @@ func TestMysqlServer(t *testing.T) {
 	if err != nil {
 		t.Error("MySQL Server couldn't stop")
 	}
-
 }
