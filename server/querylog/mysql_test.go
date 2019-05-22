@@ -1,9 +1,7 @@
 package querylog
 
 import (
-	"database/sql"
 	"github.com/enescakir/balance/server/config"
-	"github.com/enescakir/balance/server/database"
 	"testing"
 	"time"
 )
@@ -19,19 +17,16 @@ var cases = []struct {
 	{"[][][[]()", Unbalanced, 40005},
 }
 
-func connectTestDatabase() *sql.DB {
+func TestingConfig() config.Config {
 	cfg := config.Read("../config/config.mysql.json")
-
-	db := database.New(cfg)
-	database.Rollback(db)
-	database.Migrate(db)
-
-	return db
+	return cfg
 }
 
 func TestMysqlRepository(t *testing.T) {
-	db := connectTestDatabase()
-	repo := NewMysqlRepository(db)
+	cfg := TestingConfig()
+	repo := NewMysqlRepository(cfg)
+	Rollback(repo.db)
+	Migrate(repo.db)
 	defer repo.Flush()
 
 	before := time.Now().Add(-time.Hour).Format(TimeFormat)
@@ -104,8 +99,8 @@ func TestMysqlRepository(t *testing.T) {
 }
 
 func TestMysqlRepositoryConnectError(t *testing.T) {
-	db := connectTestDatabase()
-	repo := NewMysqlRepository(db)
+	cfg := TestingConfig()
+	repo := NewMysqlRepository(cfg)
 	// Drop tables. All queries will fail
 	repo.Flush()
 	defer repo.Flush()
@@ -139,8 +134,10 @@ func TestMysqlRepositoryConnectError(t *testing.T) {
 }
 
 func TestMysqlRepositoryParseError(t *testing.T) {
-	db := connectTestDatabase()
-	repo := NewMysqlRepository(db)
+	cfg := TestingConfig()
+	repo := NewMysqlRepository(cfg)
+	Rollback(repo.db)
+	Migrate(repo.db)
 	defer repo.Flush()
 
 	// Test Store()
@@ -153,9 +150,9 @@ func TestMysqlRepositoryParseError(t *testing.T) {
 	}
 
 	// Drop column
-	_, err := db.Exec("ALTER TABLE logs MODIFY status VARCHAR(255);")
-	_, err = db.Exec("ALTER TABLE logs MODIFY response_time VARCHAR(255);")
-	_, err = db.Exec("ALTER TABLE logs MODIFY created_at VARCHAR(255);")
+	_, err := repo.db.Exec("ALTER TABLE logs MODIFY status VARCHAR(255);")
+	_, err = repo.db.Exec("ALTER TABLE logs MODIFY response_time VARCHAR(255);")
+	_, err = repo.db.Exec("ALTER TABLE logs MODIFY created_at VARCHAR(255);")
 
 	// Test FindAll(start, end)
 	logs, err := repo.FindAll("", "")
