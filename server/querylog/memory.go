@@ -9,13 +9,12 @@ import (
 // MemoryRepository implements Repository QueryLogy interface for MySQL.
 type MemoryRepository struct {
 	data  []QueryLog
-	mutex *sync.Mutex
+	mutex sync.Mutex
 }
 
 // NewMemoryRepository returns newly created MemoryRepository reference with given database.
 func NewMemoryRepository() *MemoryRepository {
-	return &MemoryRepository{data: make([]QueryLog, 0), mutex:
-	&sync.Mutex{}}
+	return &MemoryRepository{data: make([]QueryLog, 0)}
 }
 
 // Flush removes all data from in memory database.
@@ -26,10 +25,11 @@ func (r *MemoryRepository) Flush() {
 // Store saves given QueryLog to in memory database.
 func (r *MemoryRepository) Store(l *QueryLog) error {
 	r.mutex.Lock()
+	defer r.mutex.Unlock()
+
 	l.Id = len(r.data) + 1
 	l.CreatedAt = time.Now()
 	r.data = append(r.data, *l)
-	defer r.mutex.Unlock()
 
 	return nil
 }
@@ -57,11 +57,7 @@ func (r *MemoryRepository) CountByStatus(start string, end string) ([]*StatusCou
 
 	pairs := make(map[Status]int, 0)
 	for _, l := range logs {
-		if val, ok := pairs[l.Status]; ok {
-			pairs[l.Status] = val + 1
-		} else {
-			pairs[l.Status] = 1
-		}
+		pairs[l.Status]++
 	}
 
 	counts := make([]*StatusCount, 0)

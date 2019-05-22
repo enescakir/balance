@@ -47,7 +47,5 @@ func (s *Server) Start() {
 	address := fmt.Sprintf(":%d", s.port)
 	s.srv = http.Server{Addr: address, Handler: s.router}
 
-	if err := s.srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		log.Fatal(err)
-	}
+	log.Fatal(s.srv.ListenAndServe())
 }
